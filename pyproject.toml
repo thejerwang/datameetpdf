@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "datameetpdf"
-version = "0.1"
+version = "0.2"
 authors = ["Quantransform <info@quantransform.co.uk>"]
 description = "Create PDF by using selected different data outputs."
 license = "MIT"
