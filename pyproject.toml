@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "datameetpdf"
+version = "0.1"
+authors = ["Quantransform <info@quantransform.co.uk>"]
+description = "Create PDF by using selected different data outputs."
+license = "MIT"
+classifiers = [
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+homepage = "https://github.com/quantransform/datameetpdf"
+repository = "https://github.com/quantransform/datameetpdf"
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+wkhtmltopdf = "0.2"
+pdfkit = "1.0.0"
+pandas = ">=1.0.0"
+numpy = ">=1.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = ">6.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 79
+
