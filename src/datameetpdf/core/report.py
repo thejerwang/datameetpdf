@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 import pdfkit
+import plotly
 
 from datameetpdf.template.basic_html import _basic_html
 from datameetpdf.util.html import _pandas_dataframe_to_html
@@ -22,6 +23,34 @@ class ReportItem:
     item_type: str
     formatted_data: str
     title: str = None
+    bold_font: bool = True
+    font_size: float = 5
+    underline: bool = True
+
+    @property
+    def pre_b(self) -> str:
+        """Return pre string for bold."""
+        return "<b>" if self.bold_font else ""
+
+    @property
+    def post_b(self) -> str:
+        """Return post string for bold."""
+        return "</b>" if self.bold_font else ""
+
+    @property
+    def pre_font_size_str(self) -> str:
+        """Return string for font size."""
+        return f"<h{self.font_size}>"
+
+    @property
+    def post_font_size_str(self) -> str:
+        """Return string for font size."""
+        return f"</h{self.font_size}>"
+
+    @property
+    def add_underline(self) -> str:
+        """Return a line break."""
+        return "<hr>" if self.underline else ""
 
 
 class ReportCreation:
@@ -33,6 +62,9 @@ class ReportCreation:
         """Pass basic setting by init."""
         self.css_template = css_template
         self.options = {
+            "javascript-delay": 1_000,
+            "no-stop-slow-scripts": None,
+            "debug-javascript": None,
             "page-size": kwargs.get("page-size", "A4"),
             "dpi": kwargs.get("dpi", 400),
             "margin-top": kwargs.get("margin-top", "0.5in"),
@@ -42,6 +74,7 @@ class ReportCreation:
         }
         self.path = path
         self.report_items = []
+        self.body_str = ""
 
     def add_dataframe(
         self,
@@ -55,6 +88,8 @@ class ReportCreation:
         table_sub_style: str = "table-striped",
         table_font_size: str = "table-sm",
         index: bool = False,
+        bold_font: bool = True,
+        font_size: int = 5,
     ) -> None:
         """Add dataframe to the report.
 
@@ -76,6 +111,10 @@ class ReportCreation:
                 HTML table style. Defaults to "table-sm".
             index (bool, optional):
                 Determine if dropping index. Defaults to False.
+            bold_font (bool, optional):
+                Determine if title is bold. Defaults to True.
+            font_size (int, optional):
+                font size to be used. Default to be 5.
         """
         self.report_items += [
             ReportItem(
@@ -92,18 +131,66 @@ class ReportCreation:
                     index=index,
                 ),
                 title=title,
+                bold_font=bold_font,
+                font_size=font_size,
+            )
+        ]
+
+    def add_plotly(
+        self,
+        data: plotly.graph_objs,
+        title: str = None,
+        bold_font: bool = True,
+        font_size: int = 5,
+    ) -> None:
+        """Add plotly chart to the report."""
+        self.report_items += [
+            ReportItem(
+                item_type="plotly",
+                formatted_data=data,
+                title=title,
+                bold_font=bold_font,
+                font_size=font_size,
+            )
+        ]
+
+    def add_break(self, numbers_of_break: int = 1):
+        """Add break line.
+
+        Args:
+            numbers_of_break (int, optional): Number of breaks. Defaults to 1.
+        """
+        self.report_items += [
+            ReportItem(
+                item_type="break_line",
+                formatted_data="<br>" * int(numbers_of_break),
+            )
+        ]
+
+    def add_next_page_break(self):
+        """Add next page break."""
+        self.report_items += [
+            ReportItem(
+                item_type="next_page",
+                formatted_data='<div style = "display:block; clear:both; page-break-after:always;"></div>',
             )
         ]
 
     def generate_pdf(self):
         """Generate PDF."""
-        body_str = ""
         for item in self.report_items:
             if item.title:
-                body_str += f"<h5><b>{item.title}</b></h5>"
-            body_str += item.formatted_data
+                self.body_str += (
+                    f"{item.pre_font_size_str}"
+                    f"{item.pre_b}"
+                    f"{item.title}"
+                    f"{item.post_b}"
+                    f"{item.post_font_size_str}"
+                    f"{item.add_underline}"
+                )
+            self.body_str += item.formatted_data
         pdfkit.from_string(
-            input=_basic_html(body_str=body_str),
+            input=_basic_html(body_str=self.body_str),
             output_path=self.path,
             css=self.css_template,
             options=self.options,

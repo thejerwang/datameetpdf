@@ -6494,6 +6494,9 @@
       display: -ms-inline-flexbox !important;
       display: inline-flex !important;
     }
+    .new-page {
+      page-break-before: always;
+    }
   }
   
   .embed-responsive {
