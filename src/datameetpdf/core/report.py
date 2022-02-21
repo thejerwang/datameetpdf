@@ -90,6 +90,7 @@ class ReportCreation:
         index: bool = False,
         bold_font: bool = True,
         font_size: int = 5,
+        underline: bool = True,
     ) -> None:
         """Add dataframe to the report.
 
@@ -133,6 +134,7 @@ class ReportCreation:
                 title=title,
                 bold_font=bold_font,
                 font_size=font_size,
+                underline=underline,
             )
         ]
 
@@ -142,6 +144,7 @@ class ReportCreation:
         title: str = None,
         bold_font: bool = True,
         font_size: int = 5,
+        underline: bool = True,
     ) -> None:
         """Add plotly chart to the report."""
         self.report_items += [
@@ -151,6 +154,7 @@ class ReportCreation:
                 title=title,
                 bold_font=bold_font,
                 font_size=font_size,
+                underline=underline,
             )
         ]
 
